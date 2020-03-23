@@ -15,9 +15,9 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 
 
 def greet_user(bot, update: Update):
-    text = 'Приветствую!'
+    text = "Привет, это бот Eat is random\nотправь мне название блюда и свое местоположение.\nВ ответ я случайное заведение которое тебе подходит."
     message: Message = update.message
-    message.reply_text(text=text)
+    message.reply_markdown(text)
     logging.info('User: %s, Message: %s',
                  update.message.chat.username, text)
 
@@ -34,7 +34,10 @@ def main():
     logging.info('Бот запускается')
 
     dp = mybot.dispatcher
+
     dp.add_handler(CommandHandler("start", greet_user))
+    dp.add_handler(CommandHandler("help", greet_user))
+
     dp.add_handler(MessageHandler(Filters.location, location))
     mybot.start_polling()
     mybot.idle()
