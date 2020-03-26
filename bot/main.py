@@ -1,3 +1,4 @@
+import env
 import logging
 
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
@@ -29,7 +30,7 @@ def location(bot, update):
 
 
 def main():
-    mybot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
+    mybot = Updater(settings.BOT_API_KEY, request_kwargs=settings.PROXY)
 
     logging.info('Бот запускается')
 
