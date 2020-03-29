@@ -38,7 +38,6 @@ def crawl_values(page, crawl_item) -> t.Dict:
 
 def get_field_value(page, css_selectors, attr=None) -> t.Any:
     for selectors in css_selectors:
-        selector = selectors
         if page.select(selector):
             all_items = page.select(selector)
             field_value = []
@@ -53,5 +52,4 @@ def get_field_value(page, css_selectors, attr=None) -> t.Any:
             return field_value
         else:
             field_value = ''
-            continue
     return field_value
