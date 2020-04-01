@@ -1,9 +1,11 @@
 import typing as t
-import yarl
-
-from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from crawlers.zoon.utils import get_html, crawl_values, get_field_value
+
+import requests
+import yarl
+from bs4 import BeautifulSoup
+
+from crawlers.zoon.utils import get_html, parse_values, get_field_value
 
 
 @dataclass
@@ -64,12 +66,6 @@ class DB_module:
     def get_restaurants(self):
         return self.restaurants
 
-    def __getattr__(self, attr):
-        return self
-
-    def __call__(*args, **kwargs):
-        return 1
-
 
 @dataclass
 class Field:
@@ -82,7 +78,7 @@ class Field:
 class Crawler:
     db_module = DB_module()
 
-    def get_page(self, num: int) -> str:
+    def __get_page(self, num: int) -> t.Optional[str]:
         url = 'https://spb.zoon.ru/restaurants/?action=list&type=service'
         data = {
             'search_query_form': 1,
@@ -91,9 +87,11 @@ class Crawler:
             'page': num,
         }
         html = get_html(url, 'POST', data=data)
+
         return html
 
-    def add_restaurants_to_db(self, page: str) -> None:
+    @staticmethod
+    def __parse_restaurants_from_page(page: str):
         rest_list = {
             "url": Field(value_type=yarl.URL, css_selectors=['div.H3>a'], attr='href'),
             "name": Field(value_type=str, css_selectors=['div.H3>a']),
@@ -101,12 +99,16 @@ class Crawler:
 
         soup = BeautifulSoup(page, 'html.parser')
         all_rests = soup.select('div.service-description')
-        for rest in all_rests:
-            rest_main_info = crawl_values(rest, rest_list)
 
-            self.db_module.add_restaurant(rest_main_info)
+        restaurants_ = [
+            parse_values(rest, rest_list)
+            for rest in all_rests
+        ]
 
-    def add_restaurants_info_to_db(self, restaurant, soup) -> None:
+        return restaurants_
+
+    def __parse_restaurants_info(self, soup) -> t.Any:
+        """Clean parsing"""
         place_card = {
             "rating": Field(value_type=float, css_selectors=['span.rating-value']),
             "schedule": Field(value_type=str, css_selectors=['dd.upper-first>div']),
@@ -118,11 +120,12 @@ class Crawler:
             "adress": Field(value_type=str, css_selectors=['address.iblock']),
         }
 
-        rest_other_info = crawl_values(soup, place_card)
+        rest_other_info = parse_values(soup, place_card)
 
-        self.db_module.add_restaurant_info(rest_other_info, restaurant)
+        return rest_other_info
 
-    def add_restaurants_menu_to_db(self, restaurant, soup) -> None:
+    def __parse_restaurants_menu(self, soup) -> t.List:
+        """Clean parsing"""
         menu = {
             "description": Field(value_type=str, css_selectors=['span.js-pricelist-description']),
             "title": Field(value_type=str, css_selectors=['span.js-pricelist-title a', 'span.js-pricelist-title']),
@@ -133,33 +136,57 @@ class Crawler:
         # all_dishes is soup or []
         # пишем ли что-то в базу, если []?
         all_dishes = soup.select('div.pricelist-item-content')
-        for dishes in all_dishes:
-            dish = crawl_values(dishes, menu)
 
-            self.db_module.add_dish(dish, restaurant)
+        dishes = [
+            parse_values(dishes, menu)
+            for dishes in all_dishes
+        ]
 
-    def start_crawl(self):
-        crawl_id = self.db_module.new_crawl()
+        return dishes
+
+    def crawl_pages(self, page_counts: int = 3) -> None:
         for page_number in range(1, 3):
-            page = self.get_page(page_number)
-            if not page:
-                return
+            print(page_number)  # TODO: combinations_with_replacement with meaningful logging
+            tries = 0
+            while tries < 2:
+                try:
+                    page = self.__get_page(page_number)
+                    for restaraunt in self.__parse_restaurants_from_page(page):
+                        print(restaraunt)
+                        self.db_module.add_restaurant(restaraunt)
 
-            self.add_restaurants_to_db(page)
+                    break
+                except(requests.RequestException, ValueError, NotImplementedError):
+                    print('asdas')
+                    tries += 1
 
+            print('Усё')  # TODO: combinations_with_replacement with meaningful logging
+
+    def crawl_restaurant(self):
         for restaurant in self.db_module.get_restaurants():
-            restaurant_page = get_html(f"{restaurant.url}menu", "GET")
-            if not restaurant_page:
+            print(restaurant)  # TODO: combinations_with_replacement with meaningful logging
+            try:
+                restaurant_page = get_html(f"{restaurant.url}menu", "GET")
+            except(requests.RequestException, ValueError, NotImplementedError):
+                print("Can't crawl: ", restaurant)  # TODO: combinations_with_replacement with meaningful logging
                 continue
+
             soup = BeautifulSoup(restaurant_page, 'html.parser')
 
-            self.add_restaurants_info_to_db(restaurant, soup)
-            self.add_restaurants_menu_to_db(restaurant, soup)
+            rest_other_info = self.__parse_restaurants_info(soup)
+            self.db_module.add_restaurant_info(rest_other_info, restaurant)
+
+            dishes = self.__parse_restaurants_menu(soup)
+            for dish in dishes:
+                self.db_module.add_dish(dish, restaurant)
 
         tmp = [print(x) for x in self.db_module.restaurants_info]
-        # print()
-        # tmp = [print(x) for x in self.db_module.dishes]
-        self.db_module.end_crawl(crawl_id, "success")
+
+    def start_crawl(self):
+        # TODO: crawl_id = self.db_module.new_crawl()
+        self.crawl_pages()
+        self.crawl_restaurant()
+        # TODO: self.db_module.end_crawl(crawl_id, "success")
 
 
 if __name__ == "__main__":
