@@ -1,8 +1,6 @@
-import env
 import logging
 
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
-from telegram import  InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import settings
 
