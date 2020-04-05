@@ -1,6 +1,11 @@
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
+THIS_DIR = Path(__file__).absolute().parent
+
+DOTENV_PATH = THIS_DIR.parent / '.env'
+
+if os.path.exists(DOTENV_PATH):
+    load_dotenv(DOTENV_PATH)
