@@ -5,6 +5,13 @@ import requests
 import yarl
 from bs4 import BeautifulSoup
 
+import sys
+from pathlib import Path
+
+file = Path(__file__).resolve()
+root = file.parents[2]
+sys.path.append(str(root))
+
 from crawlers.zoon.utils import get_html, parse_values, get_field_value
 from crawlers.zoon import db_module
 
