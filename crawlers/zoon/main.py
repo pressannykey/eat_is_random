@@ -12,7 +12,7 @@ from crawlers.zoon import db_module
 @dataclass
 class Field:
     value_type: type
-    # we have some cases with different selectors for one field
+    # можно изменить тип css_selectors на str, но оставим для случая, если данные лежат в разных селекторах
     css_selectors: t.List[str]
     attr: str = None
 
@@ -68,7 +68,7 @@ class Crawler:
         """Clean parsing"""
         menu = {
             "description": Field(value_type=str, css_selectors=['span.js-pricelist-description']),
-            "title": Field(value_type=str, css_selectors=['span.js-pricelist-title a', 'span.js-pricelist-title']),
+            "title": Field(value_type=str, css_selectors=['span.js-pricelist-title']),
             "category_url": Field(value_type=yarl.URL, css_selectors=['span.js-pricelist-title a'], attr='href'),
             "price": Field(value_type=str, css_selectors=['div.price-weight strong']),
         }
