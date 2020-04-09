@@ -1,4 +1,5 @@
 import os
+from bot import env
 
 BOT_API_KEY = os.environ.get('BOT_API_KEY')
 

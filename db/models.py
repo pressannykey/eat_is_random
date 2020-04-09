@@ -1,35 +1,27 @@
-from sqlalchemy import (Column, BigInteger, String, ForeignKey, DateTime)
+from sqlalchemy import (Column, Integer, Float, String, ForeignKey, DateTime, Table)
 from sqlalchemy import orm
 from db.base import Base
 
+# zoon_menus = Table(
+#     'zoon_menues', Base.metadata,
+#     Column('zoon_place_id', Integer, ForeignKey('zoon_places.zoon_place_id')),
+#     Column('zoon_dish_id', Integer, ForeignKey('zoon_dishes.zoon_dish_id'))
+# )
+
 
 class Resources(Base):
-    """
-    CREATE TABLE resources (
-      resource_id bigint,
-      name text,
-      url text
-    );
-    """
     __tablename__ = 'resources'
-    resource_id = Column(BigInteger, primary_key=True)
+
+    resource_id = Column(Integer, primary_key=True)
     name = Column(String)
     url = Column(String)
 
 
-class Crawling_info(Base):
-    """
-    CREATE TABLE crawling_info (
-        crawling_info_id bigint,
-        resource_id bigint REFERENCES resources(resource_id),
-        crawl_start_time timestamp,
-        crawl_end_time timestamp,
-        status text
-    );
-    """
+class CrawlingInfo(Base):
     __tablename__ = "crawling_info"
-    crawling_info_id = Column(BigInteger, primary_key=True)
-    resource_id = Column(BigInteger, ForeignKey("resources.resource_id"))
+
+    crawling_info_id = Column(Integer, primary_key=True)
+    resource_id = Column(Integer, ForeignKey("resources.resource_id"))
     crawl_start_time = Column(DateTime)
     crawl_end_time = Column(DateTime)
     status = Column(String)
@@ -37,83 +29,62 @@ class Crawling_info(Base):
     resource = orm.relationship(Resources)
 
 
-class Gastro_classes(Base):
-    """
-    CREATE TABLE gastro_classes (
-        gastro_classes_id bigint,
-        name text
-    );
-    """
-    __tablename__ = "gastro_classes"
-    gastro_classes_id = Column(BigInteger, primary_key=True)
-    name = Column(String)
-
-
-class Zoon_places(Base):
-    """
-    CREATE TABLE zoon_places (
-        zoon_place_id bigint,
-        zoon_place_name text,
-    );
-    """
+class ZoonPlaces(Base):
     __tablename__ = "zoon_places"
-    zoon_place_id = Column(BigInteger, primary_key=True)
+
+    zoon_place_id = Column(Integer, primary_key=True)
     zoon_place_name = Column(String)
+    zoon_place_url = Column(String)
+
+    zoon_dishes = orm.relationship("ZoonDishes")
+
+    def __str__(self):
+        return f"ZoonPlace {self.zoon_place_name} {self.zoon_place_url}"
 
 
-class Zoon_gastros(Base):
-    """
-    CREATE TABLE zoon_gastros (
-        zoon_gastro_id bigint,
-        name text,
-        synonym_id REFERENCES zoon_gastros(name),
-        gastro_classes_id FOREIGN KEY REFERENCES gastro_classes(gastro_classes_id)
-    );
-    """
-    __tablename__ = "zoon_gastros"
-    zoon_gastro_id = Column(BigInteger, primary_key=True)
-    name = Column(String)
-    synonym_id = Column(BigInteger, ForeignKey("zoon_gastros.zoon_gastro_id"))
-    gastro_classes_id = Column(BigInteger, ForeignKey("gastro_classes.gastro_classes_id"))
+class ZoonDishes(Base):
+    __tablename__ = "zoon_dishes"
 
-    synonym = orm.relationship("Zoon_gastros")
-    synonym = orm.relationship(Gastro_classes)
+    zoon_dish_id = Column(Integer, primary_key=True)
+    title = Column(String)
+    description = Column(String)
+    category_url = Column(String)
+    price = Column(String)
+    zoon_place_id = Column(Integer, ForeignKey("zoon_places.zoon_place_id"))
+
+    zoon_place = orm.relationship("ZoonPlaces", back_populates="zoon_dishes")
+
+    def __str__(self):
+        return f"zoon dish {self.title} {self.price}"
+
+
+class ZoonPlacesInfo(Base):
+    __tablename__ = "zoon_places_info"
+
+    zoon_places_info_id = Column(Integer, primary_key=True)
+    zoon_place_id = Column(Integer, ForeignKey("zoon_places.zoon_place_id"))
+    phone_number = Column(String)
+    adress = Column(String)
+    price_range = Column(String)
+    schedule = Column(String)
+    original_link = Column(String)
+    rating = Column(Float)
+
+    zoon_place = orm.relationship(ZoonPlaces)
+
+    def __str__(self):
+        return f"ZoonPlacesInfo {self.zoon_place.zoon_place_name} {self.rating}"
 
 
 class Responses(Base):
-    """
-    CREATE TABLE responses (
-        response_id bigint,
-        response_time timestamp,
-        query_location text,
-        query_gastro text,
-        zoon_place bigint REFERENCES zoon_places(zoon_place_id),
-        zoon_gastro_id bigint REFERENCES zoon_gastros(zoon_gastro_id)
-    );
-    """
     __tablename__ = "responses"
 
-    response_id = Column(BigInteger, primary_key=True)
+    response_id = Column(Integer, primary_key=True)
     response_time = Column(DateTime)
     query_location = Column(String)
-    query_gastro = Column(String)
-    zoon_place_id = Column(BigInteger, ForeignKey("zoon_places.zoon_place_id"))
-    zoon_gastro_id = Column(BigInteger, ForeignKey("zoon_gastros.zoon_gastro_id"))
+    query_dish = Column(String)
+    zoon_place_id = Column(Integer, ForeignKey("zoon_places.zoon_place_id"))
+    zoon_dish_id = Column(Integer, ForeignKey("zoon_dishes.zoon_dish_id"))
 
-    zoon_place = orm.relationship(Zoon_places)
-    zoon_gastro = orm.relationship(Zoon_gastros)
-
-class Zoon_menues(Base):
-    """
-    CREATE TABLE zoon_menues (
-        zoon_place_id bigint REFERENCES zoon_places(zoon_place_id),
-        zoon_gastro_id bigint REFERENCES zoon_gastros(zoon_gastro_id)
-    );
-    """
-    __tablename__ = "zoon_menues"
-    zoon_menu_id = Column(BigInteger, primary_key=True)
-    zoon_place_id = Column(BigInteger, ForeignKey("zoon_places.zoon_place_id"))
-    zoon_gastro_id = Column(BigInteger, ForeignKey("zoon_gastros.zoon_gastro_id"))
-
-    zoon_place = orm.relationship(Zoon_places)
-    zoon_gastro = orm.relationship(Zoon_gastros)
+    zoon_place = orm.relationship(ZoonPlaces)
+    zoon_dish = orm.relationship(ZoonDishes)
