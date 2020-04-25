@@ -3,9 +3,9 @@ import re
 prepositions = ['с', 'со', 'под', 'в', 'во', 'от', 'из', 'и', 'без']
 
 
-def get_user_input():
+def get_user_input(raw_input):
     # обрабатываем пользовательский ввод
-    dish = input("Введите блюдо: ")
+    dish = raw_input
     if not dish:
         return []
     dishes = [dish]

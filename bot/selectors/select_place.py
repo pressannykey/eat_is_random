@@ -5,7 +5,7 @@ from pprint import pprint
 from sqlalchemy import desc, join, select
 from sqlalchemy import func as sa_func
 from sqlalchemy.dialects import postgresql
-from test import get_user_input
+from bot.selectors.user_input import get_user_input
 import random
 
 
@@ -35,9 +35,9 @@ class PlacePicker:
         result = filtered_places.group_by(ZoonPlaces.zoon_place_id, ZoonPlacesInfo.adress, ZoonPlacesInfo.phone_number).order_by(desc(
             sa_func.max(ZoonPlacesInfo.rating)), desc(sa_func.count(ZoonPlaces.zoon_place_id))).limit(10)
 
-        zz = result.compile(
-            dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
-        print(zz)
+        # zz = result.compile(
+        #     dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
+        # print(zz)
 
         places = conn.execute(result).fetchall()
 
@@ -70,11 +70,11 @@ def get_places(dishes):
     return places
 
 
-def all_together():
-    dishes = get_user_input()
+def all_together(user_input):
+    dishes = get_user_input(user_input)
     places = get_places(dishes)
     answer = place_output(places)
-    print(answer)
+    return answer
 
 
 if __name__ == "__main__":
