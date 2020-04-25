@@ -42,10 +42,12 @@ class Crawler:
         rest_list = {
             "url": Field(value_type=yarl.URL, css_selectors=['div.H3>a'], attr='href'),
             "name": Field(value_type=str, css_selectors=['div.H3>a']),
+            "lng": Field(value_type=float, css_selectors=[], attr='data-lon'),
+            "lat": Field(value_type=float, css_selectors=[], attr='data-lat'),
         }
 
         soup = BeautifulSoup(page, 'html.parser')
-        all_rests = soup.select('div.service-description')
+        all_rests = soup.select('li.service-item')
 
         restaurants_ = [
             parse_values(rest, rest_list)
@@ -53,6 +55,7 @@ class Crawler:
         ]
 
         return restaurants_
+        
 
     def __parse_restaurants_info(self, soup) -> t.Any:
         """Clean parsing"""
@@ -104,7 +107,7 @@ class Crawler:
 
                     break
                 except(requests.RequestException, ValueError, NotImplementedError):
-                    print('asdas')
+                    print('ошибка')
                     tries += 1
 
             print('Усё')  # TODO: combinations_with_replacement with meaningful logging

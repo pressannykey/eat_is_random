@@ -39,6 +39,12 @@ def get_field_value(
     attr: t.Optional[str] = None,
 ) -> t.Union[t.List, str]:
     field_value = []
+    if not css_selectors:
+        # just for lon-lat :(
+        value = page[attr]
+        field_value.append(value)
+        return field_value[0]
+    
     for selector in css_selectors:
         all_items = page.select(selector)
         if not all_items:
