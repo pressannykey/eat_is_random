@@ -1,4 +1,5 @@
 import os
+import logging
 from bot import env
 
 BOT_API_KEY = os.environ.get('BOT_API_KEY')
@@ -16,3 +17,7 @@ PROXY = {
         }
 }
 
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+                    level=logging.INFO,
+                    filename='bot.log'
+                    )
