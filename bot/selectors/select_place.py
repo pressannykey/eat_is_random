@@ -44,18 +44,6 @@ class PlacePicker:
         return places
 
 
-def place_output(places):
-    if not places:
-        result = "Ничего не нашлось:("
-        return result
-    place = random.choice(places)
-    dishes = ", ".join(place[-1])
-    result = f'''Мы нашли заведение: 
-{place[1]} с рейтингом {place[2]}, по адресу: {place[3]}. Тел: {place[4]}
-В меню: {dishes}'''
-    return result
-
-
 def get_places(dishes):
     c = PlacePicker()
     places = []
@@ -63,19 +51,55 @@ def get_places(dishes):
         # выбираем заведения по всем вариациям из ввода
         for dish in dishes:
             tmp_places = c.select_place(conn, dish)
-            places.extend(tmp_places)
+            places.append(tmp_places)
             # если нашли достаточное количество мест, повторно в базу не идем
             if len(places) > 5:
                 break
     return places
 
 
+def place_handler(places):
+    direct_match = False
+    result_places = []
+    if not places:
+        return result_places, direct_match
+    # если нашли точное совпадение, выбираем из него
+    if places[0]:
+        result_places = places[0]
+        direct_match = True
+        return result_places, direct_match
+    # иначе склеиваем все прочие результаты и выбираем из них
+    for place in places:
+        if place:
+            result_places.extend(place)
+    return result_places, direct_match
+
+
+def place_output(places, direct_match):
+    if not places:
+        answer = 'Ничего не нашлось'
+        return answer
+    text = '''{} заведение: 
+{} с рейтингом {}, по адресу: {}. Тел: {}
+В меню: {}'''
+    place = random.choice(places)
+    dishes = ", ".join(place[-1])
+    if direct_match:
+        answer = text.format(
+            'Мы нашли', place[1], place[2], place[3], place[4], dishes)
+    else:
+        answer = text.format('Точного совпадения не нашлось.\nВозможно, вам подойдет',
+                             place[1], place[2], place[3], place[4], dishes)
+    return answer
+
+
 def all_together(user_input):
     dishes = get_user_input(user_input)
-    places = get_places(dishes)
-    answer = place_output(places)
+    all_places = get_places(dishes)
+    places, direct_match = place_handler(all_places)
+    answer = place_output(places, direct_match)
     return answer
 
 
 if __name__ == "__main__":
-    all_together()
+    all_together(input('Введите блюдо: '))

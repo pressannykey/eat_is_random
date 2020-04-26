@@ -14,5 +14,4 @@ def get_user_input(raw_input):
         if dish not in prepositions and dish not in dishes:
             dishes.append(dish)
 
-    print(dishes)
     return dishes
