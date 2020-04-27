@@ -35,10 +35,6 @@ class PlacePicker:
         result = filtered_places.group_by(ZoonPlaces.zoon_place_id, ZoonPlacesInfo.adress, ZoonPlacesInfo.phone_number).order_by(desc(
             sa_func.max(ZoonPlacesInfo.rating)), desc(sa_func.count(ZoonPlaces.zoon_place_id))).limit(10)
 
-        # zz = result.compile(
-        #     dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
-        # print(zz)
-
         places = conn.execute(result).fetchall()
 
         return places
@@ -46,32 +42,32 @@ class PlacePicker:
 
 def get_places(dishes):
     c = PlacePicker()
-    places = []
+    places = {}
     with engine.connect() as conn:
         # выбираем заведения по всем вариациям из ввода
+        place_count = 0
         for dish in dishes:
             tmp_places = c.select_place(conn, dish)
-            places.append(tmp_places)
+            places.update({dish: tmp_places})
             # если нашли достаточное количество мест, повторно в базу не идем
-            if len(places) > 5:
+            place_count += len(tmp_places)
+            if place_count > 5:
                 break
     return places
 
 
-def place_handler(places):
+def place_handler(places, full_match):
     direct_match = False
     result_places = []
     if not places:
         return result_places, direct_match
-    # если нашли точное совпадение, выбираем из него
-    if places[0]:
-        result_places = places[0]
+    direct_match_places = places[full_match]
+    if direct_match_places:
         direct_match = True
+        result_places = direct_match_places
         return result_places, direct_match
-    # иначе склеиваем все прочие результаты и выбираем из них
-    for place in places:
-        if place:
-            result_places.extend(place)
+    for value in places.values():
+        result_places.extend(value)
     return result_places, direct_match
 
 
@@ -93,13 +89,13 @@ def place_output(places, direct_match):
     return answer
 
 
-def all_together(user_input):
-    dishes = get_user_input(user_input)
+def get_place_by_dish(user_input):
+    dish, dishes = get_user_input(user_input)
     all_places = get_places(dishes)
-    places, direct_match = place_handler(all_places)
+    places, direct_match = place_handler(all_places, dish)
     answer = place_output(places, direct_match)
     return answer
 
 
 if __name__ == "__main__":
-    all_together(input('Введите блюдо: '))
+    get_place_by_dish(input('Введите блюдо: '))
