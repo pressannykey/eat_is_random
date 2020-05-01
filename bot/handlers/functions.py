@@ -5,15 +5,15 @@ from bot.selectors import select_place
 
 
 def greet_user(bot, update):
-    text = "Привет, это бот Eat is random\nотправь мне название блюда и свое местоположение.\nВ ответ я отправлю случайное заведение которое тебе подходит."
-    update.message.reply_markdown(text)
+    text = "Привет, это бот Eat is random\nОтправь мне название блюда и свое местоположение.\nВ ответ я отправлю случайное заведение, которое тебе подойдет."
+    update.message.reply_text(text)
     logging.info('User: %s, Message: %s',
                  update.message.chat.username, text)
 
 
 def place_handler(bot, update, user_data):
-    text = "пожалуйста введите название блюда"
-    update.message.reply_markdown(text)
+    text = "Введите название блюда"
+    update.message.reply_text(text)
     logging.info('User: %s, Message: %s',
                  update.message.chat.username, text)
 
@@ -24,8 +24,8 @@ def get_dish_name(bot, update, user_data):
     user_data["dish_name"] = update.message.text
 
     # text = "пожалуйста отправьте локацию"
-    text = select_place.all_together(update.message.text)
-    update.message.reply_markdown(text)
+    text = select_place.get_place_by_dish(update.message.text)
+    update.message.reply_text(text)
     logging.info('User: %s, Message: %s',
                  update.message.chat.username, text)
 
@@ -37,7 +37,7 @@ def get_geo_data(bot, update, user_data):
     print(update.message.location)
 
     text = "спасибо!"
-    update.message.reply_markdown(text)
+    update.message.reply_text(text)
     logging.info('User: %s, Message: %s',
                  update.message.chat.username, text)
 
