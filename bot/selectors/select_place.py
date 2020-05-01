@@ -42,16 +42,16 @@ class PlacePicker:
 
 def get_places(dishes):
     c = PlacePicker()
-    places = {}
+    dish_to_places = {}
     with engine.connect() as conn:
         # выбираем заведения по всем вариациям из ввода
         place_count = 0
         for dish in dishes:
             tmp_places = c.select_place(conn, dish)
-            places.update({dish: tmp_places})
+            dish_to_places[dish] = tmp_places
             # если нашли достаточное количество мест, повторно в базу не идем
             place_count += len(tmp_places)
-            if place_count > 5:
+            if place_count > 9:
                 break
     return places
 
