@@ -6,7 +6,7 @@ from bot.handlers import set_handlers
 
 def main():
     my_bot = Updater(settings.BOT_API_KEY, request_kwargs=settings.PROXY)
-    logging.info('Бот запускается')
+    logging.info("Бот запускается")
 
     dp = my_bot.dispatcher
     set_handlers(dp)
@@ -15,5 +15,5 @@ def main():
     my_bot.idle()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

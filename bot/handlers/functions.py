@@ -24,6 +24,7 @@ def get_dish_name(bot, update, user_data):
     user_data["dish_name"] = update.message.text
 
     # text = "пожалуйста отправьте локацию"
+
     text = select_place.get_place_by_dish(update.message.text)
     update.message.reply_text(text)
     logging.info('User: %s, Message: %s',
@@ -37,6 +38,7 @@ def get_geo_data(bot, update, user_data):
     print(update.message.location)
 
     text = "спасибо!"
+
     update.message.reply_text(text)
     logging.info('User: %s, Message: %s',
                  update.message.chat.username, text)

@@ -1,4 +1,4 @@
-from sqlalchemy import (Column, Integer, Float, String, ForeignKey, DateTime, Table)
+from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime, Table
 from sqlalchemy import orm
 from db.base import Base
 
@@ -10,7 +10,7 @@ from db.base import Base
 
 
 class Resources(Base):
-    __tablename__ = 'resources'
+    __tablename__ = "resources"
 
     resource_id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -34,7 +34,9 @@ class ZoonPlaces(Base):
 
     zoon_place_id = Column(Integer, primary_key=True)
     zoon_place_name = Column(String)
-    zoon_place_url = Column(String)
+    zoon_place_url = Column(String, unique=True, nullable=False)
+    lat = Column(Float)
+    lng = Column(Float)
 
     zoon_dishes = orm.relationship("ZoonDishes")
 
@@ -66,6 +68,8 @@ class ZoonPlacesInfo(Base):
     phone_number = Column(String)
     adress = Column(String)
     price_range = Column(String)
+    # metro_stations = Column(Array(String))
+    # rayons = Column(Array(String))
     schedule = Column(String)
     original_link = Column(String)
     rating = Column(Float)

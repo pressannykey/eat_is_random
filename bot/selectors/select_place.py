@@ -29,11 +29,20 @@ class PlacePicker:
 
         joins = join(ZoonPlacesInfo, ZoonPlaces).join(ZoonDishes)
 
-        filtered_places = select(
-            columns, zoon_dishes_filter, from_obj=joins)
+        filtered_places = select(columns, zoon_dishes_filter, from_obj=joins)
 
-        result = filtered_places.group_by(ZoonPlaces.zoon_place_id, ZoonPlacesInfo.adress, ZoonPlacesInfo.phone_number).order_by(desc(
-            sa_func.max(ZoonPlacesInfo.rating)), desc(sa_func.count(ZoonPlaces.zoon_place_id))).limit(10)
+        result = (
+            filtered_places.group_by(
+                ZoonPlaces.zoon_place_id,
+                ZoonPlacesInfo.adress,
+                ZoonPlacesInfo.phone_number,
+            )
+            .order_by(
+                desc(sa_func.max(ZoonPlacesInfo.rating)),
+                desc(sa_func.count(ZoonPlaces.zoon_place_id)),
+            )
+            .limit(10)
+        )
 
         places = conn.execute(result).fetchall()
 
@@ -73,19 +82,31 @@ def place_handler(places, full_match):
 
 def place_output(places, direct_match):
     if not places:
-        answer = 'Ничего не нашлось'
+        answer = "Ничего не нашлось"
         return answer
-    text = '''{case} заведение: 
+    text = """{case} заведение: 
 {name} с рейтингом {rating}, по адресу: {adress}. Тел: {phone_number}
-В меню: {dishes}'''
+В меню: {dishes}"""
     place = random.choice(places)
     dishes = ", ".join(place[-1])
     if direct_match:
-        answer = text.format(case='Мы нашли', name=place[1], rating=place[2],
-                             adress=place[3], phone_number=place[4], dishes=dishes)
+        answer = text.format(
+            case="Мы нашли",
+            name=place[1],
+            rating=place[2],
+            adress=place[3],
+            phone_number=place[4],
+            dishes=dishes,
+        )
     else:
-        answer = text.format(case='Точного совпадения не нашлось.\nВозможно, вам подойдет',
-                             name=place[1], rating=place[2], adress=place[3], phone_number=place[4], dishes=dishes)
+        answer = text.format(
+            case="Точного совпадения не нашлось.\nВозможно, вам подойдет",
+            name=place[1],
+            rating=place[2],
+            adress=place[3],
+            phone_number=place[4],
+            dishes=dishes,
+        )
     return answer
 
 
@@ -98,4 +119,4 @@ def get_place_by_dish(user_input):
 
 
 if __name__ == "__main__":
-    get_place_by_dish(input('Введите блюдо: '))
+    get_place_by_dish(input("Введите блюдо: "))
