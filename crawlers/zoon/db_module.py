@@ -54,11 +54,30 @@ def add_dish(dish, restaurant):
         price=dish["price"],
         zoon_place=restaurant,
     )
-    session.add(zoon_dish)
-    session.commit()
+
+    existing_dish = (
+        session.query(ZoonDishes).filter(ZoonDishes.title == zoon_dish.title).first()
+    )
+
+    if not existing_dish:
+        session.add(zoon_dish)
+        session.commit()
 
 
 def get_restaurants():
     restaurants = session.query(ZoonPlaces).all()
     print(len(restaurants))
+    return restaurants
+
+
+def get_not_parsed_restaurants():
+    restaurants_query = (
+        session.query(ZoonPlaces)
+        .outerjoin(ZoonPlacesInfo)
+        .filter(ZoonPlacesInfo.zoon_places_info_id == None)
+    )
+
+    restaurants = restaurants_query.all()
+    print(len(restaurants))
+
     return restaurants

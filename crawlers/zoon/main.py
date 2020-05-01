@@ -1,6 +1,7 @@
 import typing as t
 from dataclasses import dataclass
 
+import time
 import requests
 import yarl
 from bs4 import BeautifulSoup
@@ -156,16 +157,26 @@ class Crawler:
         print("Всё")  # TODO: combinations_with_replacement with meaningful logging
 
     def crawl_restaurant(self):
-        for restaurant in db_module.get_restaurants():
+        for restaurant in db_module.get_not_parsed_restaurants():
             # TODO: combinations_with_replacement with meaningful logging
-            print(restaurant)
-            try:
-                restaurant_page = get_html(f"{restaurant.zoon_place_url}menu", "GET")
-            except (requests.RequestException, ValueError, NotImplementedError):
-                # TODO: combinations_with_replacement with meaningful logging
-                print("Can't crawl: ", restaurant)
+            for i in range(3):
+                try:
+                    restaurant_page = get_html(
+                        f"{restaurant.zoon_place_url}menu", "GET"
+                    )
+                    print("Парсим ресторан ", restaurant)
+                    end = False
+                    break
+                except (requests.RequestException, ValueError, NotImplementedError):
+                    # TODO: combinations_with_replacement with meaningful logging
+                    print("Can't crawl: ", restaurant)
+                    if i == 2:
+                        print("Все еще забанены:( вырубай")
+                        end = True
+                    time.sleep(10)
+                    continue
+            if end:
                 continue
-
             soup = BeautifulSoup(restaurant_page, "html.parser")
 
             rest_other_info = self.__parse_restaurants_info(soup)

@@ -1,21 +1,20 @@
 import requests
 import typing as t
+import socks
+import socket
+from fake_useragent import UserAgent
+
+socks.set_default_proxy(socks.SOCKS5, "localhost", 9150)
+socket.socket = socks.socksocket
 
 
 def get_html(url: str, method: str, data: t.Any = None) -> t.Optional[str]:
-    headers = {
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.129 Safari/537.36"
-    }
-
-    proxies = {
-        "http": "103.111.183.46:80",
-        "https": "103.111.183.46:80",
-    }
+    headers = {"User-Agent": UserAgent().chrome}
 
     if method.upper() == "GET":
-        result = requests.get(url, headers=headers, proxies=proxies)
+        result = requests.get(url, headers=headers)
     elif method.upper() == "POST":
-        result = requests.post(url, headers=headers, proxies=proxies, data=data)
+        result = requests.post(url, headers=headers, data=data)
     else:
         raise NotImplementedError()
 
