@@ -29,11 +29,20 @@ class PlacePicker:
 
         joins = join(ZoonPlacesInfo, ZoonPlaces).join(ZoonDishes)
 
-        filtered_places = select(
-            columns, zoon_dishes_filter, from_obj=joins)
+        filtered_places = select(columns, zoon_dishes_filter, from_obj=joins)
 
-        result = filtered_places.group_by(ZoonPlaces.zoon_place_id, ZoonPlacesInfo.adress, ZoonPlacesInfo.phone_number).order_by(desc(
-            sa_func.max(ZoonPlacesInfo.rating)), desc(sa_func.count(ZoonPlaces.zoon_place_id))).limit(10)
+        result = (
+            filtered_places.group_by(
+                ZoonPlaces.zoon_place_id,
+                ZoonPlacesInfo.adress,
+                ZoonPlacesInfo.phone_number,
+            )
+            .order_by(
+                desc(sa_func.max(ZoonPlacesInfo.rating)),
+                desc(sa_func.count(ZoonPlaces.zoon_place_id)),
+            )
+            .limit(10)
+        )
 
         # zz = result.compile(
         #     dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
@@ -50,9 +59,9 @@ def place_output(places):
         return result
     place = random.choice(places)
     dishes = ", ".join(place[-1])
-    result = f'''Мы нашли заведение: 
+    result = f"""Мы нашли заведение: 
 {place[1]} с рейтингом {place[2]}, по адресу: {place[3]}. Тел: {place[4]}
-В меню: {dishes}'''
+В меню: {dishes}"""
     return result
 
 
