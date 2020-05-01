@@ -53,7 +53,7 @@ def get_places(dishes):
             place_count += len(tmp_places)
             if place_count > 9:
                 break
-    return places
+    return dish_to_places
 
 
 def place_handler(places, full_match):
