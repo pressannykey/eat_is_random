@@ -80,42 +80,42 @@ def place_handler(places, full_match):
     return result_places, direct_match
 
 
-def place_output(places, direct_match):
-    if not places:
-        answer = "Ничего не нашлось"
-        return answer
-    text = """{case} заведение: 
-{name} с рейтингом {rating}, по адресу: {adress}. Тел: {phone_number}
-В меню: {dishes}"""
-    place = random.choice(places)
-    dishes = ", ".join(place[-1])
-    if direct_match:
-        answer = text.format(
-            case="Мы нашли",
-            name=place[1],
-            rating=place[2],
-            adress=place[3],
-            phone_number=place[4],
-            dishes=dishes,
-        )
-    else:
-        answer = text.format(
-            case="Точного совпадения не нашлось.\nВозможно, вам подойдет",
-            name=place[1],
-            rating=place[2],
-            adress=place[3],
-            phone_number=place[4],
-            dishes=dishes,
-        )
-    return answer
+# def place_output(places, direct_match):
+#     if not places:
+#         answer = "Ничего не нашлось"
+#         return answer
+#     text = """{case} заведение:
+# {name} с рейтингом {rating}, по адресу: {adress}. Тел: {phone_number}
+# В меню: {dishes}"""
+#     place = random.choice(places)
+#     dishes = ", ".join(place[-1])
+#     if direct_match:
+#         answer = text.format(
+#             case="Мы нашли",
+#             name=place[1],
+#             rating=place[2],
+#             adress=place[3],
+#             phone_number=place[4],
+#             dishes=dishes,
+#         )
+#     else:
+#         answer = text.format(
+#             case="Точного совпадения не нашлось.\nВозможно, вам подойдет",
+#             name=place[1],
+#             rating=place[2],
+#             adress=place[3],
+#             phone_number=place[4],
+#             dishes=dishes,
+#         )
+#     return answer
 
 
 def get_place_by_dish(user_input):
     dish, dishes = get_user_input(user_input)
     all_places = get_places(dishes)
     places, direct_match = place_handler(all_places, dish)
-    answer = place_output(places, direct_match)
-    return answer
+    # answer = place_output(places, direct_match)
+    return places, direct_match
 
 
 if __name__ == "__main__":
