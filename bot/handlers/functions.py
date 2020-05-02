@@ -62,6 +62,8 @@ def get_dish_name(bot, update, user_data):
         phone_number=place[4],
         dishes=dishes,
     )
+    lat = place[-2]
+    lng = place[-3]
     reply_keyboard = [["Подходит", "Посмотреть еще"]]
 
     user_data["places"].remove(place)
@@ -72,9 +74,7 @@ def get_dish_name(bot, update, user_data):
         ),
     )
     logging.info("User: %s, Message: %s", update.message.chat.username, answer)
-    bot.send_location(
-        chat_id=update.message.chat_id, latitude=59.933938, longitude=30.339296
-    )
+    bot.send_location(chat_id=update.message.chat_id, latitude=lat, longitude=lng)
 
     return "next_place_or_final"
 
@@ -90,6 +90,8 @@ def next_place(bot, update, user_data):
         phone_number=place[4],
         dishes=dishes,
     )
+    lat = place[-2]
+    lng = place[-3]
     reply_keyboard = [["Подходит", "Посмотреть еще"]]
 
     user_data["places"].remove(place)
@@ -100,9 +102,7 @@ def next_place(bot, update, user_data):
         ),
     )
     logging.info("User: %s, Message: %s", update.message.chat.username, answer)
-    bot.send_location(
-        chat_id=update.message.chat_id, latitude=59.933938, longitude=30.339296
-    )
+    bot.send_location(chat_id=update.message.chat_id, latitude=lat, longitude=lng)
     return ConversationHandler.END
 
 

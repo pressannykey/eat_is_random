@@ -24,6 +24,8 @@ class PlacePicker:
             ZoonPlacesInfo.adress,
             ZoonPlacesInfo.phone_number,
             sa_func.count(ZoonPlaces.zoon_place_id),
+            ZoonPlaces.lng,
+            ZoonPlaces.lat,
             sa_func.array_agg(ZoonDishes.title),
         ]
 
