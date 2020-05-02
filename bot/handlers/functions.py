@@ -7,9 +7,7 @@ from bot.selectors import select_place
 
 
 def get_keyboard():
-    my_keyboard = ReplyKeyboardMarkup(
-        [["Найти заведение по блюду"]], resize_keyboard=True
-    )
+    my_keyboard = ReplyKeyboardMarkup([["Найти заведение"]], resize_keyboard=True)
     return my_keyboard
 
 
@@ -35,7 +33,9 @@ def get_dish_name(bot, update, user_data):
     places, direct_match = select_place.get_place_by_dish(update.message.text)
 
     if not places:
-        text = "Ничего не нашлось:(\nХотите начать новый поиск? Нажмите 'Найти заведение по блюду'"
+        text = (
+            "Ничего не нашлось:(\nХотите начать новый поиск? Нажмите 'Найти заведение'"
+        )
         update.message.reply_text(text, reply_markup=get_keyboard())
         return ConversationHandler.END
 

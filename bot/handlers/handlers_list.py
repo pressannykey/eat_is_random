@@ -9,9 +9,7 @@ from . import functions
 
 place_getter = ConversationHandler(
     entry_points=[
-        RegexHandler(
-            "^Найти заведение по блюду$", functions.place_handler, pass_user_data=True
-        ),
+        RegexHandler("^Найти заведение$", functions.place_handler, pass_user_data=True),
     ],
     states={
         "get_dish_name": [
