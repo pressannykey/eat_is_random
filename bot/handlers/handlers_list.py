@@ -9,20 +9,22 @@ from . import functions
 
 place_getter = ConversationHandler(
     entry_points=[
-        RegexHandler("^Найти заведение$", functions.place_handler, pass_user_data=True),
+        RegexHandler("^Найти заведение$", functions.dish_handler, pass_user_data=True),
     ],
     states={
-        "get_dish_name": [
-            MessageHandler(Filters.text, functions.get_dish_name, pass_user_data=True)
+        "place_handler": [
+            MessageHandler(Filters.text, functions.place_handler, pass_user_data=True)
         ],
+        # TODO: стейт не используется, нужно добавить обработку геопозиции
         "get_geo_data": [
             MessageHandler(
                 Filters.location, functions.get_geo_data, pass_user_data=True
             )
         ],
         "next_place_or_final": [
-            RegexHandler("^Посмотреть еще$", functions.next_place, pass_user_data=True),
-            RegexHandler("^Подходит$", functions.final, pass_user_data=True),
+            RegexHandler("^Посмотреть еще", functions.next_place, pass_user_data=True),
+            RegexHandler("^Подходит", functions.final, pass_user_data=True),
+            RegexHandler("^Новый поиск", functions.dish_handler, pass_user_data=True),
         ],
     },
     fallbacks=[],
@@ -30,7 +32,6 @@ place_getter = ConversationHandler(
 
 handlers_list = [
     CommandHandler("start", functions.greet_user),
-    RegexHandler("help", functions.greet_user),
-    CommandHandler("place", functions.place_handler),
+    CommandHandler("help", functions.greet_user),
     place_getter,
 ]
