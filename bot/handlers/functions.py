@@ -23,7 +23,12 @@ def choose_place(user_data):
 В меню: {dishes}"""
 
     place = random.choice(user_data["places"])
-    dishes = ", ".join(place[-1])
+
+    dish_list = place[-1]
+    if len(place[-1]) > 7:
+        dish_list = dish_list[:7]
+    dishes = ", ".join(dish_list)
+
     answer = text.format(
         case=user_data["case"],
         name=place[1],
@@ -34,7 +39,6 @@ def choose_place(user_data):
     )
 
     user_data["places"].remove(place)
-    print(user_data["places"])
 
     return answer, place
 
