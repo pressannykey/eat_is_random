@@ -2,8 +2,10 @@ import logging
 import random
 
 from telegram.ext import ConversationHandler
+from telegram.error import TelegramError
 from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup
 from bot.selectors import select_place
+from bot.handlers import handlers_list
 
 
 def get_keyboard():
@@ -15,6 +17,9 @@ def greet_user(bot, update):
     text = "Привет, это бот Eat is random!\nЯ умею находить заведения по блюду.\nЧтобы начать работу, нажми кнопку 'Найти заведение'"
     update.message.reply_text(text, reply_markup=get_keyboard())
     logging.info("User: %s, Message: %s", update.message.chat.username, text)
+
+    key = handlers_list.place_getter._get_key(update)
+    handlers_list.place_getter.update_state(ConversationHandler.END, key)
 
 
 def choose_place(user_data):
@@ -75,9 +80,7 @@ def place_handler(bot, update, user_data):
     places, direct_match = select_place.get_place_by_dish(update.message.text)
 
     if not places:
-        text = (
-            "Ничего не нашлось :(\nХочешь начать новый поиск? Нажми 'Найти заведение'"
-        )
+        text = "Ничего не нашлось :(\n" + welcome_text
         update.message.reply_text(text, reply_markup=get_keyboard())
         return ConversationHandler.END
 
@@ -94,7 +97,7 @@ def place_handler(bot, update, user_data):
     if len(user_data["places"]) > 1:
         return "next_place_or_final"
 
-    text = "Больше мест нет не нашлось.\nХочешь начать новый поиск? Нажми 'Найти заведение'"
+    text = "Больше мест нет не нашлось.\n" + welcome_text
     update.message.reply_text(text, reply_markup=get_keyboard())
     return ConversationHandler.END
 
@@ -107,7 +110,7 @@ def next_place(bot, update, user_data):
 
     reply_keyboard = []
     place_output(bot, update, user_data, reply_keyboard)
-    text = "Больше мест нет не нашлось.\nХочешь начать новый поиск? Нажми 'Найти заведение'"
+    text = "Больше мест нет не нашлось.\n" + welcome_text
     update.message.reply_text(text, reply_markup=get_keyboard())
     return ConversationHandler.END
 
@@ -128,3 +131,26 @@ def get_geo_data(bot, update, user_data):
     logging.info("User: %s, Message: %s", update.message.chat.username, text)
 
     return ConversationHandler.END
+
+
+def error_callback(bot, update, error):
+    logging.warning(
+        "User: %s, Message: %s caused error %s",
+        update.message.chat.username,
+        update.message.text,
+        error,
+    )
+    text = "Что-то пошло не так :(\n" + welcome_text
+    update.message.reply_text(text, reply_markup=get_keyboard())
+    key = handlers_list.place_getter._get_key(update)
+
+    handlers_list.place_getter.update_state(ConversationHandler.END, key)
+
+
+def out_of_state(bot, update, user_data):
+    update.message.reply_text(
+        "Я не знаю такой команды :(\nХочешь начать новый поиск? Нажми 'Новый поиск'"
+    )
+
+
+welcome_text = "Хочешь начать новый поиск? Нажми 'Найти заведение'"

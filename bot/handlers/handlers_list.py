@@ -9,7 +9,11 @@ from . import functions
 
 place_getter = ConversationHandler(
     entry_points=[
-        RegexHandler("^Найти заведение$", functions.dish_handler, pass_user_data=True),
+        MessageHandler(
+            Filters.regex("^Найти заведение$"),
+            functions.dish_handler,
+            pass_user_data=True,
+        ),
     ],
     states={
         "place_handler": [
@@ -22,16 +26,28 @@ place_getter = ConversationHandler(
             )
         ],
         "next_place_or_final": [
-            RegexHandler("^Посмотреть еще", functions.next_place, pass_user_data=True),
-            RegexHandler("^Подходит", functions.final, pass_user_data=True),
-            RegexHandler("^Новый поиск", functions.dish_handler, pass_user_data=True),
+            MessageHandler(
+                Filters.regex("^Посмотреть еще"),
+                functions.next_place,
+                pass_user_data=True,
+            ),
+            MessageHandler(
+                Filters.regex("^Подходит"), functions.final, pass_user_data=True,
+            ),
+            MessageHandler(
+                Filters.regex("^Новый поиск"),
+                functions.dish_handler,
+                pass_user_data=True,
+            ),
         ],
     },
-    fallbacks=[],
+    fallbacks=[
+        MessageHandler(Filters.text, functions.out_of_state, pass_user_data=True)
+    ],
 )
 
 handlers_list = [
+    place_getter,
     CommandHandler("start", functions.greet_user),
     CommandHandler("help", functions.greet_user),
-    place_getter,
 ]
