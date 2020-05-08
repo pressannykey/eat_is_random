@@ -1,7 +1,7 @@
 import logging
 from telegram.ext import Updater
 from bot import settings
-from bot.handlers import set_handlers
+from bot.handlers import set_handlers, functions
 
 
 def main():
@@ -9,6 +9,7 @@ def main():
     logging.info("Бот запускается")
 
     dp = my_bot.dispatcher
+    dp.add_error_handler(functions.error_callback)
     set_handlers(dp)
 
     my_bot.start_polling()
