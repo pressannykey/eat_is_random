@@ -1,11 +1,12 @@
 import logging
 import random
 
-from telegram.ext import ConversationHandler
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.error import TelegramError
-from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup
-from bot.selectors import select_place
+from telegram.ext import ConversationHandler
+
 from bot.handlers import handlers_list
+from bot.selectors import select_place
 
 
 def get_keyboard():
@@ -60,7 +61,7 @@ def place_output(bot, update, user_data, keyboard):
     else:
         update.message.reply_text(answer, reply_markup=ReplyKeyboardRemove())
 
-    logging.info("User: %s, Message: %s", update.message.chat.username, answer)
+    logging.info("User: %s, User_input: %s, Answer: %s", update.message.chat.username, user_data["dish_name"], answer)
 
     lat, lng = place[-2], place[-3]
     bot.send_location(chat_id=update.message.chat_id, latitude=lat, longitude=lng)
@@ -82,6 +83,8 @@ def place_handler(bot, update, user_data):
     if not places:
         text = "Ничего не нашлось :(\n" + welcome_text
         update.message.reply_text(text, reply_markup=get_keyboard())
+
+        logging.info("User: %s, User_input: %s, Answer: %s", update.message.chat.username, user_data["dish_name"], text)
         return ConversationHandler.END
 
     user_data["places"] = places
@@ -99,6 +102,8 @@ def place_handler(bot, update, user_data):
 
     text = "Больше мест нет не нашлось.\n" + welcome_text
     update.message.reply_text(text, reply_markup=get_keyboard())
+
+    logging.info("User: %s, User_input: %s, Answer: %s", update.message.chat.username, user_data["dish_name"], text)
     return ConversationHandler.END
 
 
@@ -112,6 +117,8 @@ def next_place(bot, update, user_data):
     place_output(bot, update, user_data, reply_keyboard)
     text = "Больше мест нет не нашлось.\n" + welcome_text
     update.message.reply_text(text, reply_markup=get_keyboard())
+
+    logging.info("User: %s, User_input: %s, Answer: %s", update.message.chat.username, user_data["dish_name"], text)
     return ConversationHandler.END
 
 

@@ -1,5 +1,5 @@
-from db.models import ZoonPlaces, ZoonPlacesInfo, ZoonDishes
 from db.base import Session
+from db.models import ZoonDishes, ZoonPlaces, ZoonPlacesInfo
 
 session = Session()
 
@@ -39,6 +39,7 @@ def add_restaurant_info(info, restaurant: ZoonPlaces):
         phone_number=info["phone_number"],
         original_link=url,
         adress=info["adress"],
+        # TODO: Создать таблицу с местоположением и положить туда эти данные
         # metro_stations=info["metro_stations"],
         # rayons=info["rayons"],
     )
@@ -55,13 +56,8 @@ def add_dish(dish, restaurant):
         zoon_place=restaurant,
     )
 
-    existing_dish = (
-        session.query(ZoonDishes).filter(ZoonDishes.title == zoon_dish.title).first()
-    )
-
-    if not existing_dish:
-        session.add(zoon_dish)
-        session.commit()
+    session.add(zoon_dish)
+    session.commit()
 
 
 def get_restaurants():

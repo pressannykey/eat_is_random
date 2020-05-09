@@ -1,7 +1,9 @@
 import logging
+
 from telegram.ext import Updater
+
 from bot import settings
-from bot.handlers import set_handlers, functions
+from bot.handlers import functions, set_handlers
 
 
 def main():

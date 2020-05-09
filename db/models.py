@@ -1,12 +1,7 @@
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime, Table
-from sqlalchemy import orm
-from db.base import Base
+from sqlalchemy import (Column, DateTime, Float, ForeignKey, Integer, String,
+                        Table, orm)
 
-# zoon_menus = Table(
-#     'zoon_menues', Base.metadata,
-#     Column('zoon_place_id', Integer, ForeignKey('zoon_places.zoon_place_id')),
-#     Column('zoon_dish_id', Integer, ForeignKey('zoon_dishes.zoon_dish_id'))
-# )
+from db.base import Base
 
 
 class Resources(Base):
@@ -68,6 +63,7 @@ class ZoonPlacesInfo(Base):
     phone_number = Column(String)
     adress = Column(String)
     price_range = Column(String)
+    # TODO: Перенести эти данные в отдельную таблицу
     # metro_stations = Column(Array(String))
     # rayons = Column(Array(String))
     schedule = Column(String)

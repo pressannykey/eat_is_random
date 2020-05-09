@@ -4,7 +4,7 @@ prepositions = ["с", "со", "под", "в", "во", "от", "из", "и", "б�
 
 
 def get_user_input(raw_input):
-    # обрабатываем пользовательский ввод
+    # TODO: подключить NLTK
     if not raw_input:
         return [], []
     dishes = [raw_input]

@@ -1,7 +1,8 @@
-import requests
-import typing as t
-import socks
 import socket
+import typing as t
+
+import requests
+import socks
 from fake_useragent import UserAgent
 
 socks.set_default_proxy(socks.SOCKS5, "localhost", 9150)
@@ -22,7 +23,7 @@ def get_html(url: str, method: str, data: t.Any = None) -> t.Optional[str]:
     return result.text
 
 
-def normilize_text(field: str) -> str:
+def normalize_text(field: str) -> str:
     result = field.replace(u"\xa0", u" ").replace("\t", " ").replace("\n", " ").strip()
     return result
 
@@ -43,7 +44,7 @@ def get_field_value(
 ) -> t.Union[t.List, str]:
     field_value = []
     if not css_selectors:
-        # just for lon-lat :(
+        # for lon-lat
         value = page[attr]
         field_value.append(value)
         return field_value[0]
@@ -54,7 +55,7 @@ def get_field_value(
             continue
 
         for item in all_items:
-            value = item[attr] if attr else normilize_text(item.text)
+            value = item[attr] if attr else normalize_text(item.text)
             field_value.append(value)
 
     if len(field_value) == 1:
