@@ -14,7 +14,7 @@ http://www.restaurantgenerator.com/
 Поддерживает поиск по нескольким блюдам.  
 Не работает в России.  
 
-## откуда берем данные
+## Откуда берем данные
 
 ### Zoon  
 - https://spb.zoon.ru/restaurants  

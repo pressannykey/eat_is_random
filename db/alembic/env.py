@@ -1,19 +1,16 @@
+import sys
 from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from pathlib import Path
 
 from alembic import context
-
-import sys
-from pathlib import Path
+from sqlalchemy import engine_from_config, pool
 
 file = Path(__file__).resolve()
 root = file.parents[2]
 sys.path.append(str(root))
 
-from db.models import Base
 from db import settings
+from db.models import Base
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DB_URL)

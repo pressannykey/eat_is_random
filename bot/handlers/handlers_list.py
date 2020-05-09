@@ -1,10 +1,11 @@
 from telegram.ext import (
     CommandHandler,
     ConversationHandler,
+    Filters,
     MessageHandler,
     RegexHandler,
 )
-from telegram.ext import Filters
+
 from . import functions
 
 place_getter = ConversationHandler(

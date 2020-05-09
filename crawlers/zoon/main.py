@@ -1,20 +1,19 @@
+import sys
+import time
 import typing as t
 from dataclasses import dataclass
+from pathlib import Path
 
-import time
 import requests
 import yarl
 from bs4 import BeautifulSoup
-
-import sys
-from pathlib import Path
 
 file = Path(__file__).resolve()
 root = file.parents[2]
 sys.path.append(str(root))
 
 from crawlers.zoon import db_module
-from crawlers.zoon.utils import get_html, parse_values, get_field_value
+from crawlers.zoon.utils import get_html, parse_values
 
 
 @dataclass
@@ -74,8 +73,8 @@ class Crawler:
 
         return restaurants_
 
-    def __parse_restaurants_info(self, soup) -> t.Any:
-        """Clean parsing"""
+    @staticmethod
+    def __parse_restaurants_info(soup: str) -> t.Any:
         place_card = {
             "rating": Field(value_type=float, css_selectors=["span.rating-value"]),
             "schedule": Field(value_type=str, css_selectors=["dd.upper-first>div"]),
@@ -106,8 +105,8 @@ class Crawler:
 
         return rest_other_info
 
-    def __parse_restaurants_menu(self, soup) -> t.List:
-        """Clean parsing"""
+    @staticmethod
+    def __parse_restaurants_menu(soup: str) -> t.List:
         menu = {
             "description": Field(
                 value_type=str, css_selectors=["span.js-pricelist-description"]
@@ -121,7 +120,7 @@ class Crawler:
             "price": Field(value_type=str, css_selectors=["div.price-weight strong"]),
         }
 
-        # all_dishes is soup or []
+        # all_dishes это soup или []
         all_dishes = soup.select("div.pricelist-item-content")
 
         dishes = [parse_values(dishes, menu) for dishes in all_dishes]
@@ -129,6 +128,7 @@ class Crawler:
         return dishes
 
     def crawl_pages(self, place_type) -> None:
+        # TODO: логирование
         page = 1
         print(page)
         while True:
@@ -154,11 +154,11 @@ class Crawler:
                 print("Ошибка", e)
                 break
 
-        print("Всё")  # TODO: combinations_with_replacement with meaningful logging
+        print("Всё")
 
     def crawl_restaurant(self):
         for restaurant in db_module.get_not_parsed_restaurants():
-            # TODO: combinations_with_replacement with meaningful logging
+            # TODO: логирование
             for i in range(3):
                 try:
                     restaurant_page = get_html(
@@ -168,10 +168,8 @@ class Crawler:
                     end = False
                     break
                 except (requests.RequestException, ValueError, NotImplementedError):
-                    # TODO: combinations_with_replacement with meaningful logging
                     print("Can't crawl: ", restaurant)
                     if i == 2:
-                        print("Все еще забанены:( вырубай")
                         end = True
                     time.sleep(10)
                     continue
